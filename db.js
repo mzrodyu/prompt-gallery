@@ -555,6 +555,13 @@ function listGallery(o) {
       params.push(f);
     }
   }
+  // category sub-filter (combines with platform filter via AND)
+  if (o.category) {
+    where.push(
+      "g.id IN (SELECT galleryId FROM gallery_categories WHERE category = ? COLLATE NOCASE)",
+    );
+    params.push(o.category);
+  }
   // search
   if (o.q) {
     where.push(

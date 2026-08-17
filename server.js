@@ -32,6 +32,8 @@ function defaultSettings() {
     commentModeration: false,
     theme: "default",
     siteName: "MJ Gallery",
+    logoVersion: 0,
+    bgVersion: 0,
   };
 }
 
@@ -180,6 +182,17 @@ function isValidImageDataUrl(value) {
     return false;
   if (!value.startsWith("data:image/")) return false;
   return value.includes(";base64,");
+}
+
+const SITE_DIR = path.join(DATA_DIR, "site");
+function siteAssetPath(type) {
+  return path.join(SITE_DIR, type === "logo" ? "logo" : "bg");
+}
+// Decode a data URL into { mime, buffer } for raw serving.
+function decodeDataUrl(dataUrl) {
+  const m = /^data:([^;,]+);base64,(.*)$/s.exec(dataUrl);
+  if (!m) return null;
+  return { mime: m[1], buffer: Buffer.from(m[2], "base64") };
 }
 
 function signToken(userId) {
@@ -457,6 +470,54 @@ app.post("/api/admin/settings", requireAdmin, (req, res) => {
   res.json(settings);
 });
 
+// Upload / clear site logo or background (stored as a file, referenced by version)
+app.post("/api/admin/site-asset", requireAdmin, (req, res) => {
+  const type = req.body?.type === "background" ? "background" : "logo";
+  const image = req.body?.image;
+  const settings = getSettings();
+  const verKey = type === "logo" ? "logoVersion" : "bgVersion";
+
+  if (!fs.existsSync(SITE_DIR)) fs.mkdirSync(SITE_DIR, { recursive: true });
+  const filePath = siteAssetPath(type);
+
+  if (image === null || image === "") {
+    // clear
+    try {
+      fs.unlinkSync(filePath);
+    } catch {}
+    settings[verKey] = 0;
+    saveSettings(settings);
+    return res.json(settings);
+  }
+
+  const cap = type === "logo" ? 1024 * 1024 : 4 * 1024 * 1024;
+  if (!isValidImageDataUrl(image) || image.length > cap) {
+    return res.status(400).json({ error: "图片无效或过大" });
+  }
+  fs.writeFileSync(filePath, image, "utf-8");
+  settings[verKey] = (Number(settings[verKey]) || 0) + 1;
+  saveSettings(settings);
+  res.json(settings);
+});
+
+// Serve site logo / background as raw image bytes (long cache, busted by version)
+function serveSiteAsset(type, res) {
+  const filePath = siteAssetPath(type);
+  let raw;
+  try {
+    raw = fs.readFileSync(filePath, "utf-8");
+  } catch {
+    return res.status(404).end();
+  }
+  const decoded = decodeDataUrl(raw);
+  if (!decoded) return res.status(404).end();
+  res.set("Content-Type", decoded.mime);
+  res.set("Cache-Control", "public, max-age=31536000, immutable");
+  res.send(decoded.buffer);
+}
+app.get("/api/site/logo", (req, res) => serveSiteAsset("logo", res));
+app.get("/api/site/background", (req, res) => serveSiteAsset("background", res));
+
 app.get("/api/admin/users", requireAdmin, (req, res) => {
   const users = db.listUsers().map((u) => ({
     id: u.id,
@@ -592,6 +653,7 @@ app.get("/api/gallery", (req, res) => {
 
   const q = normalizeText(req.query.q, 100).toLowerCase();
   const filter = normalizeText(req.query.filter, 20).toLowerCase();
+  const category = normalizeText(req.query.category, 100);
   const sort =
     req.query.sort === "oldest"
       ? "oldest"
@@ -605,6 +667,7 @@ app.get("/api/gallery", (req, res) => {
   const { rows, total } = db.listGallery({
     q,
     filter,
+    category: category || null,
     sort,
     offset,
     limit,
@@ -1036,6 +1099,8 @@ app.get("/api/public/settings", (req, res) => {
     enableComments: settings.enableComments,
     theme: settings.theme || "default",
     siteName: settings.siteName || "MJ Gallery",
+    logoVersion: settings.logoVersion || 0,
+    bgVersion: settings.bgVersion || 0,
   });
 });
 

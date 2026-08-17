@@ -66,6 +66,7 @@
   let currentUser = null; // { id, username, role, approved }
   let galleryItems = []; // list without image data
   let currentFilter = "all";
+  let currentCategory = "";
   let currentSearch = "";
   let currentSort = "newest";
   let currentLightboxId = null;
@@ -186,6 +187,77 @@
     btn.append(document.createTextNode(text));
   }
 
+  function applySiteBranding(settings) {
+    // custom logo
+    const logoIcon = document.querySelector(".logo-icon");
+    if (logoIcon) {
+      if (settings.logoVersion > 0) {
+        logoIcon.innerHTML = `<img class="logo-img" src="/api/site/logo?v=${settings.logoVersion}" alt="logo" />`;
+      }
+      // if 0, keep the built-in SVG that's already in the markup
+    }
+    // custom background
+    const v = settings.bgVersion || 0;
+    if (v > 0) {
+      document.body.classList.add("has-bg");
+      document.body.style.backgroundImage = `url("/api/site/background?v=${v}")`;
+    } else {
+      document.body.classList.remove("has-bg");
+      document.body.style.backgroundImage = "";
+    }
+  }
+
+  function setSiteAssetPreview(kind, version) {
+    const previewId = kind === "logo" ? "#logoPreview" : "#bgPreview";
+    const url = kind === "logo" ? "/api/site/logo" : "/api/site/background";
+    const el = $(previewId);
+    if (!el) return;
+    if (version > 0) {
+      el.src = `${url}?v=${version}`;
+      el.style.display = "";
+    } else {
+      el.removeAttribute("src");
+      el.style.display = "none";
+    }
+  }
+
+  async function uploadSiteAsset(type, image) {
+    try {
+      const settings = await api("/api/admin/site-asset", {
+        method: "POST",
+        body: { type, image },
+      });
+      // reflect immediately: live branding + admin preview
+      applySiteBranding(settings);
+      setSiteAssetPreview(type === "background" ? "bg" : "logo",
+        type === "background" ? settings.bgVersion : settings.logoVersion);
+      toast(TEXT.settingsSaved, "success");
+    } catch (err) {
+      toast(err.error || TEXT.saveFail, "error");
+    }
+  }
+
+  function bindSiteAssetControls() {
+    const wire = (fileId, btnId, clearId, type) => {
+      const file = $(fileId);
+      const btn = $(btnId);
+      const clear = $(clearId);
+      if (btn && file) btn.addEventListener("click", () => file.click());
+      if (file)
+        file.addEventListener("change", () => {
+          const f = file.files && file.files[0];
+          if (!f) return;
+          const reader = new FileReader();
+          reader.onload = (e) => uploadSiteAsset(type, e.target.result);
+          reader.readAsDataURL(f);
+          file.value = "";
+        });
+      if (clear) clear.addEventListener("click", () => uploadSiteAsset(type, null));
+    };
+    wire("#logoFile", "#btnLogoUpload", "#btnLogoClear", "logo");
+    wire("#bgFile", "#btnBgUpload", "#btnBgClear", "background");
+  }
+
   function applyChineseStaticText() {
     document.title = "MJ Gallery - Niji 图片收藏库";
 
@@ -291,6 +363,9 @@
     const siteName = publicSettings.siteName || "MJ Gallery";
     $("#siteNameDisplay").textContent = siteName;
     document.title = siteName;
+
+    // Apply custom logo & background (served as files, versioned for cache-busting)
+    applySiteBranding(publicSettings);
 
     // Load categories
     await loadCategories();
@@ -474,6 +549,7 @@
     if (currentFilter && currentFilter !== "all") {
       params.set("filter", currentFilter);
     }
+    if (currentCategory) params.set("category", currentCategory);
 
     if (viewingUserId) params.set("userId", viewingUserId);
 
@@ -481,7 +557,7 @@
   }
 
   function currentQueryKey() {
-    return `${currentSearch}__${currentFilter}__${currentSort}`;
+    return `${currentSearch}__${currentFilter}__${currentCategory}__${currentSort}`;
   }
 
   function updateLoadMoreHint() {
@@ -1720,6 +1796,8 @@
         settings.commentModeration || false;
       $("#settingTheme").value = settings.theme || "default";
       $("#settingSiteName").value = settings.siteName || "MJ Gallery";
+      setSiteAssetPreview("logo", settings.logoVersion || 0);
+      setSiteAssetPreview("bg", settings.bgVersion || 0);
     } catch (err) {
       toast(err.error || TEXT.settingsLoadFail, "error");
     }
@@ -1838,25 +1916,33 @@
   }
 
   function renderFilterTags() {
-    const container = $("#filterTags");
+    const container = $("#categoryTabs");
+    const bar = $("#categoryBar");
     if (!container) return;
 
     container
-      .querySelectorAll(".filter-tag-dynamic")
+      .querySelectorAll(".cat-tab-dynamic")
       .forEach((el) => el.remove());
+
+    // toggle the whole sub-row: only show when there are categories
+    if (bar) bar.style.display = categories.length ? "" : "none";
+
+    // keep the "全部分类" default tab's active state in sync
+    const allTab = container.querySelector('.cat-tab[data-cat=""]');
+    if (allTab) allTab.classList.toggle("active", !currentCategory);
 
     for (const cat of categories) {
       const btn = document.createElement("button");
-      btn.className = "filter-tag filter-tag-dynamic";
-      btn.dataset.filter = cat.name.toLowerCase();
+      btn.className = "cat-tab cat-tab-dynamic";
+      btn.dataset.cat = cat.name;
       btn.textContent = cat.name;
-      if (currentFilter === cat.name.toLowerCase()) btn.classList.add("active");
+      if (currentCategory === cat.name) btn.classList.add("active");
       btn.addEventListener("click", () => {
         container
-          .querySelectorAll(".filter-tag")
+          .querySelectorAll(".cat-tab")
           .forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-        currentFilter = btn.dataset.filter;
+        currentCategory = btn.dataset.cat;
         loadGallery(true);
       });
       container.appendChild(btn);
@@ -2698,7 +2784,7 @@
       loadGallery(true);
     });
 
-    // Filters
+    // Filters (platform tags)
     $$(".filter-tag").forEach((btn) => {
       btn.addEventListener("click", () => {
         $$(".filter-tag").forEach((b) => b.classList.remove("active"));
@@ -2707,6 +2793,21 @@
         loadGallery(true);
       });
     });
+
+    // Category sub-tab: the static "全部分类" reset tab
+    const allCatTab = document.querySelector('#categoryTabs .cat-tab[data-cat=""]');
+    if (allCatTab) {
+      allCatTab.addEventListener("click", () => {
+        document
+          .querySelectorAll("#categoryTabs .cat-tab")
+          .forEach((b) => b.classList.remove("active"));
+        allCatTab.classList.add("active");
+        currentCategory = "";
+        loadGallery(true);
+      });
+    }
+
+    bindSiteAssetControls();
 
     // Sort
     $("#sortSelect").addEventListener("change", () => {

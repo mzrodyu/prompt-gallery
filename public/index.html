@@ -12,7 +12,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
     />
-    <link rel="stylesheet" href="style.css?v=54" />
+    <link rel="stylesheet" href="style.css?v=55" />
   </head>
   <body>
     <!-- ===== Auth Page ===== -->
@@ -325,7 +325,7 @@
             <button class="filter-tag" data-filter="sd">
               Stable Diffusion
             </button>
-            <!-- dynamic categories appended here by JS -->
+            <!-- categories moved to the sub-row #categoryTabs -->
           </div>
           <div class="sort-area">
             <select class="sort-select" id="sortSelect">
@@ -333,6 +333,12 @@
               <option value="oldest">最早优先</option>
               <option value="popular">最多点赞</option>
             </select>
+          </div>
+        </div>
+        <div class="category-bar" id="categoryBar" style="display: none">
+          <div class="category-tabs" id="categoryTabs">
+            <button class="cat-tab active" data-cat="">全部分类</button>
+            <!-- dynamic categories appended here by JS -->
           </div>
         </div>
       </header>
@@ -1317,6 +1323,30 @@
             </div>
             <div class="setting-row">
               <div class="setting-info">
+                <div class="setting-name">站点图标</div>
+                <div class="setting-desc">替换顶栏 Logo（建议方形，≤1MB）</div>
+              </div>
+              <div class="site-asset-ctrl">
+                <img id="logoPreview" class="site-asset-preview" alt="" />
+                <input type="file" id="logoFile" accept="image/*" hidden />
+                <button class="btn btn-ghost btn-sm" id="btnLogoUpload">上传</button>
+                <button class="btn btn-ghost btn-sm" id="btnLogoClear">清除</button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-name">站点背景图</div>
+                <div class="setting-desc">整站背景（建议大图，≤4MB）</div>
+              </div>
+              <div class="site-asset-ctrl">
+                <img id="bgPreview" class="site-asset-preview" alt="" />
+                <input type="file" id="bgFile" accept="image/*" hidden />
+                <button class="btn btn-ghost btn-sm" id="btnBgUpload">上传</button>
+                <button class="btn btn-ghost btn-sm" id="btnBgClear">清除</button>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
                 <div class="setting-name">开放注册</div>
                 <div class="setting-desc">允许新用户注册账号</div>
               </div>
@@ -1617,6 +1647,6 @@
     <!-- Toast -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <script src="app.js?v=54"></script>
+    <script src="app.js?v=55"></script>
   </body>
 </html>

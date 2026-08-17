@@ -1008,6 +1008,47 @@ body {
   color: var(--accent);
 }
 
+/* Category sub-row (second-level tabs under platforms) */
+.category-bar {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 8px 24px 10px 40px;
+  border-top: 1px solid var(--border);
+}
+.category-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.category-tabs::before {
+  content: "分类";
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+.cat-tab {
+  padding: 3px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.cat-tab:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.cat-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
 .sort-select {
   padding: 5px 12px;
   background: var(--bg-glass);
@@ -2907,7 +2948,7 @@ body {
 }
 
 /* ============ Gallery Theme ============ */
-body[data-theme="gallery"] {
+[data-theme="gallery"] {
   --bg-primary: #08080c;
   --bg-secondary: #10101a;
   --bg-card: rgba(18, 18, 26, 0.95);
@@ -2936,13 +2977,13 @@ body[data-theme="gallery"] {
   background: #08080c;
 }
 
-body[data-theme="gallery"] .app-header {
+[data-theme="gallery"] .top-bar {
   background: rgba(8, 8, 12, 0.8);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-body[data-theme="gallery"] .logo h1 {
+[data-theme="gallery"] .logo-text {
   font-family: "Outfit", sans-serif;
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -2952,13 +2993,13 @@ body[data-theme="gallery"] .logo h1 {
 }
 
 /* Gallery Grid — 3-column, wide gaps */
-body[data-theme="gallery"] .gallery-grid {
+[data-theme="gallery"] .gallery-grid {
   columns: 3 320px;
   column-gap: 24px;
 }
 
 /* Card — clean, no border, big radius, overlay hidden until hover */
-body[data-theme="gallery"] .gallery-card {
+[data-theme="gallery"] .gallery-card {
   border: none;
   border-radius: 20px;
   margin-bottom: 24px;
@@ -2970,7 +3011,7 @@ body[data-theme="gallery"] .gallery-card {
   overflow: hidden;
 }
 
-body[data-theme="gallery"] .gallery-card:hover {
+[data-theme="gallery"] .gallery-card:hover {
   transform: translateY(-10px) scale(1.03);
   border-color: transparent;
   box-shadow:
@@ -2978,12 +3019,12 @@ body[data-theme="gallery"] .gallery-card:hover {
     0 0 0 2px rgba(168, 130, 255, 0.25);
 }
 
-body[data-theme="gallery"] .gallery-card img {
+[data-theme="gallery"] .gallery-card img {
   border-radius: 0;
 }
 
 /* Card overlay — HIDDEN by default, slides up on hover */
-body[data-theme="gallery"] .card-overlay {
+[data-theme="gallery"] .card-overlay {
   background: linear-gradient(
     to top,
     rgba(0, 0, 0, 0.9) 0%,
@@ -2998,19 +3039,19 @@ body[data-theme="gallery"] .card-overlay {
     transform 0.3s ease;
 }
 
-body[data-theme="gallery"] .gallery-card:hover .card-overlay {
+[data-theme="gallery"] .gallery-card:hover .card-overlay {
   opacity: 1;
   transform: translateY(0);
 }
 
-body[data-theme="gallery"] .card-prompt {
+[data-theme="gallery"] .card-prompt {
   font-family: "Outfit", sans-serif;
   font-size: 13px;
   font-weight: 400;
   line-height: 1.5;
 }
 
-body[data-theme="gallery"] .card-tag {
+[data-theme="gallery"] .card-tag {
   background: rgba(168, 130, 255, 0.2);
   color: #c4a8ff;
   border: none;
@@ -3018,12 +3059,12 @@ body[data-theme="gallery"] .card-tag {
 }
 
 /* Filter bar — pill style */
-body[data-theme="gallery"] .filter-bar {
+[data-theme="gallery"] .filter-bar {
   gap: 10px;
   padding: 6px 0;
 }
 
-body[data-theme="gallery"] .filter-tag {
+[data-theme="gallery"] .filter-tag {
   border-radius: 20px;
   font-family: "Outfit", sans-serif;
   font-weight: 500;
@@ -3031,7 +3072,7 @@ body[data-theme="gallery"] .filter-tag {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-body[data-theme="gallery"] .filter-tag.active {
+[data-theme="gallery"] .filter-tag.active {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
@@ -3039,34 +3080,34 @@ body[data-theme="gallery"] .filter-tag.active {
 }
 
 /* Like badges */
-body[data-theme="gallery"] .card-like-badge {
+[data-theme="gallery"] .card-like-badge {
   border-radius: 20px;
   backdrop-filter: blur(12px);
   background: rgba(0, 0, 0, 0.5);
 }
 
 /* Stats bar */
-body[data-theme="gallery"] .stats-bar {
+[data-theme="gallery"] .stats-bar {
   font-family: "Outfit", sans-serif;
 }
 
 /* Lightbox */
-body[data-theme="gallery"] .lightbox-info {
+[data-theme="gallery"] .lightbox-info {
   font-family: "Outfit", sans-serif;
 }
 
-body[data-theme="gallery"] .lightbox-info .info-label {
+[data-theme="gallery"] .lightbox-info .info-label {
   font-family: "Outfit", sans-serif;
   letter-spacing: 0.5px;
 }
 
 /* Stats bar */
-body[data-theme="gallery"] .stats-bar {
+[data-theme="gallery"] .stats-bar {
   font-family: "Outfit", sans-serif;
 }
 
 /* Auth page */
-body[data-theme="gallery"] .auth-container h1 {
+[data-theme="gallery"] .auth-container h1 {
   font-family: "Outfit", sans-serif;
   font-weight: 800;
 }
@@ -4385,4 +4426,45 @@ body.batch-mode .gallery-card.batch-selected {
     grid-template-columns: 1fr !important;
     gap: 16px;
   }
+}
+
+/* ============ Custom logo & site background ============ */
+.logo-img {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
+}
+.site-asset-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.site-asset-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  background: var(--bg-glass);
+}
+body.has-bg {
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+body.has-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: rgba(253, 246, 250, 0.72);
+}
+[data-theme="gallery"] body.has-bg::before,
+[data-theme="ey"] body.has-bg::before,
+[data-theme="tcg"] body.has-bg::before {
+  background: rgba(8, 8, 12, 0.72);
 }
