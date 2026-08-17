@@ -1,0 +1,26 @@
+﻿{
+  "name": "mj-gallery",
+  "version": "2.0.0",
+  "description": "MJ Gallery - Niji 鍥剧墖鏀惰棌搴擄紙甯︾敤鎴风郴缁燂級",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "node --check server.js && node --check db.js && echo Build OK",
+    "smoke": "node scripts/smoke.js",
+    "bench": "node scripts/bench.js",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  }
+}

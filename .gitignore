@@ -1,0 +1,25 @@
+﻿node_modules/
+.e2e-data/
+test-results/
+playwright-report/
+data/.jwt_secret
+.server.log
+.tools/
+
+# SQLite storage + externalized images (runtime data, not source)
+data/images/
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/*.bak
+
+# temp dirs from local verification scripts
+.tmptest/
+.tmptest2/
+.tmpmig/
+.smoke-data/
+.bench-data/
+
+# local admin seed + internal agent workflow — not for the public repo
+data/users.json
+.agents/

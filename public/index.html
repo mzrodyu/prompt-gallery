@@ -1,0 +1,1603 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MJ Gallery · Niji 图片收藏库</title>
+    <meta
+      name="description"
+      content="存储和管理你的 MidJourney Niji 绘图作品，记录提示词与参数"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+    />
+    <link rel="stylesheet" href="style.css?v=53" />
+  </head>
+  <body>
+    <!-- ===== Auth Page ===== -->
+    <div class="auth-page" id="authPage">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <div class="logo-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <h1>MJ Gallery</h1>
+        </div>
+
+        <!-- Login Form -->
+        <form class="auth-form" id="loginForm">
+          <h2>登录</h2>
+          <div class="form-group">
+            <label class="form-label">用户名</label>
+            <input
+              type="text"
+              class="form-input"
+              id="loginUsername"
+              placeholder="输入用户名"
+              autocomplete="username"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">密码</label>
+            <input
+              type="password"
+              class="form-input"
+              id="loginPassword"
+              placeholder="输入密码"
+              autocomplete="current-password"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">登录</button>
+          <p class="auth-switch" id="showRegister">
+            没有账号？<span>立即注册</span>
+          </p>
+        </form>
+
+        <!-- Register Form -->
+        <form class="auth-form" id="registerForm" style="display: none">
+          <h2>注册</h2>
+          <div class="form-group">
+            <label class="form-label">用户名</label>
+            <input
+              type="text"
+              class="form-input"
+              id="regUsername"
+              placeholder="2-20 字符"
+              autocomplete="username"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">密码</label>
+            <input
+              type="password"
+              class="form-input"
+              id="regPassword"
+              placeholder="至少 4 位"
+              autocomplete="new-password"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">从哪里看到</label>
+            <select class="form-select" id="regReferral">
+              <option value="">请选择</option>
+              <option value="朋友推荐">朋友推荐</option>
+              <option value="Discord">Discord</option>
+              <option value="QQ群">QQ群</option>
+              <option value="微博">微博</option>
+              <option value="推特/X">推特/X</option>
+              <option value="搜索引擎">搜索引擎</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">备注</label>
+            <input
+              type="text"
+              class="form-input"
+              id="regNote"
+              placeholder="可选，简单介绍一下自己"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">注册</button>
+          <p class="auth-switch" id="showLogin">
+            已有账号？<span>去登录</span>
+          </p>
+        </form>
+
+        <p class="auth-guest" id="guestLink" style="display: none">
+          <span>以游客身份浏览</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- ===== Main App ===== -->
+    <div class="app-wrapper" id="appWrapper" style="display: none">
+      <!-- Top Bar -->
+      <header class="top-bar" id="topBar">
+        <div class="top-bar-inner">
+          <div class="logo-area">
+            <div class="logo-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <h1 class="logo-text" id="siteNameDisplay">MJ Gallery</h1>
+          </div>
+
+          <div class="search-area">
+            <div class="search-box">
+              <svg
+                class="search-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="text"
+                id="searchInput"
+                class="search-input"
+                placeholder="搜索提示词、标签..."
+              />
+              <button class="search-clear" id="searchClear" title="清除">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="actions-area">
+            <div class="gallery-stats">
+              <span class="stats-count" id="statsCount">0</span>
+              <span class="stats-label">张作品</span>
+            </div>
+            <button
+              class="btn btn-ghost btn-sm"
+              id="btnAdmin"
+              title="管理后台"
+              style="display: none"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                />
+              </svg>
+              管理
+            </button>
+            <button
+              class="btn btn-ghost btn-sm"
+              id="btnBatchEdit"
+              title="批量编辑"
+              style="display: none"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 11 12 14 22 4" />
+                <path
+                  d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+                />
+              </svg>
+              批量
+            </button>
+            <button
+              class="btn btn-ghost btn-sm"
+              id="btnGuestLogin"
+              title="登录 / 注册"
+              style="display: none"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <polyline points="10 17 15 12 10 7" />
+                <line x1="15" y1="12" x2="3" y2="12" />
+              </svg>
+              登录
+            </button>
+            <button class="btn btn-primary btn-upload" id="btnUpload">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              添加作品
+            </button>
+            <div class="user-menu" id="userMenu">
+              <button class="user-avatar" id="userAvatar">
+                <span id="userInitial">?</span>
+              </button>
+              <div class="user-dropdown" id="userDropdown">
+                <div class="dropdown-header">
+                  <strong id="dropdownUsername">用户</strong>
+                  <span class="dropdown-role" id="dropdownRole">user</span>
+                </div>
+                <input
+                  type="file"
+                  id="avatarInput"
+                  accept="image/*"
+                  style="display: none"
+                />
+                <button class="dropdown-item" id="btnChangeAvatar">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                    />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                  更换头像
+                </button>
+                <button class="dropdown-item" id="btnLogout">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  退出登录
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <div class="filter-tags" id="filterTags">
+            <button class="filter-tag active" data-filter="all">全部</button>
+            <button class="filter-tag" data-filter="nai">NovelAI</button>
+            <button class="filter-tag" data-filter="niji7">Niji 7</button>
+            <button class="filter-tag" data-filter="niji6">Niji 6</button>
+            <button class="filter-tag" data-filter="mj">MidJourney</button>
+            <button class="filter-tag" data-filter="comfyui">ComfyUI</button>
+            <button class="filter-tag" data-filter="sd">
+              Stable Diffusion
+            </button>
+            <!-- dynamic categories appended here by JS -->
+          </div>
+          <div class="sort-area">
+            <select class="sort-select" id="sortSelect">
+              <option value="newest">最新优先</option>
+              <option value="oldest">最早优先</option>
+              <option value="popular">最多点赞</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <!-- Gallery -->
+      <main class="gallery-container" id="galleryContainer">
+        <div class="drop-overlay" id="dropOverlay">
+          <div class="drop-overlay-content">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <p>松开鼠标上传图片</p>
+          </div>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+          </div>
+          <h2>还没有收藏作品</h2>
+          <p>点击「添加作品」或拖拽图片到此处开始</p>
+          <button class="btn btn-primary btn-lg" id="btnEmptyUpload">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            添加第一张作品
+          </button>
+        </div>
+
+        <!-- Pending Approval State -->
+        <div class="pending-state" id="pendingState" style="display: none">
+          <div class="pending-card">
+            <div class="pending-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </div>
+            <h2 class="pending-title">审核中</h2>
+            <div class="pending-badge">● IN PROGRESS</div>
+            <div class="pending-stats">
+              <div class="pending-stat">
+                <div class="pending-stat-label">POSITION</div>
+                <div class="pending-stat-value" id="pendingPosition">—</div>
+              </div>
+              <div class="pending-stat-divider"></div>
+              <div class="pending-stat">
+                <div class="pending-stat-label">WAIT TIME</div>
+                <div
+                  class="pending-stat-value pending-stat-small"
+                  id="pendingWaitTime"
+                >
+                  预计处理时间：1-2天
+                </div>
+              </div>
+            </div>
+            <button class="btn pending-btn" id="pendingRefresh">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                style="width: 16px; height: 16px"
+              >
+                <polyline points="23 4 23 10 17 10" />
+                <polyline points="1 20 1 14 7 14" />
+                <path
+                  d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                />
+              </svg>
+              刷新状态
+            </button>
+            <button
+              class="btn pending-btn pending-btn-secondary"
+              id="pendingBack"
+            >
+              返回首页
+            </button>
+          </div>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid"></div>
+      </main>
+
+      <!-- Profile Page -->
+      <div class="profile-page" id="profilePage" style="display: none">
+        <div class="profile-header">
+          <button class="profile-back" id="profileBack">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            返回画廊
+          </button>
+          <div class="profile-info">
+            <div class="profile-avatar" id="profileAvatar">?</div>
+            <div class="profile-details">
+              <h2 id="profileName">用户</h2>
+              <span class="profile-badge" id="profileBadge">USER</span>
+              <span
+                class="user-title-badge"
+                id="profileTitle"
+                style="display: none"
+              ></span>
+            </div>
+          </div>
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <div class="profile-stat-value" id="profileWorks">0</div>
+              <div class="profile-stat-label">作品</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-value" id="profileLikes">0</div>
+              <div class="profile-stat-label">获赞</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-value" id="profileJoined">-</div>
+              <div class="profile-stat-label">加入</div>
+            </div>
+          </div>
+        </div>
+        <div class="profile-works-title">作品集</div>
+        <div class="gallery-grid" id="profileGrid"></div>
+        <div class="profile-empty" id="profileEmpty" style="display: none">
+          该用户还没有上传作品
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Upload Modal ===== -->
+    <div class="modal-overlay" id="uploadModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 id="uploadModalTitle">添加作品</h2>
+          <button class="btn-close" id="uploadClose">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="upload-zone" id="uploadZone">
+            <div class="upload-zone-content" id="uploadZoneContent">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+              <p>
+                拖拽图片到此处，或 <span class="upload-link">点击选择</span>
+              </p>
+              <span class="upload-hint">支持 JPG, PNG, WebP</span>
+            </div>
+            <img class="upload-preview" id="uploadPreview" />
+            <input
+              type="file"
+              id="uploadFileInput"
+              accept="image/*"
+              multiple
+              style="display: none"
+            />
+          </div>
+
+          <div class="form-group">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 6px;
+              "
+            >
+              <label class="form-label" style="margin-bottom: 0"
+                >提示词 (Prompt)</label
+              >
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm"
+                onclick="app.parsePromptParams()"
+                title="从提示词中智能识别 MJ 参数"
+              >
+                ⚡ 智能识别
+              </button>
+            </div>
+            <textarea
+              class="form-textarea"
+              id="inputPrompt"
+              placeholder="输入提示词，包含 --ar --niji 等参数可点击智能识别自动填入"
+              rows="4"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">来源工具</label>
+            <select class="form-select" id="inputSource">
+              <option value="">未选择</option>
+              <option value="nai">NovelAI</option>
+              <option value="mj">MidJourney / Niji</option>
+              <option value="comfyui">ComfyUI</option>
+              <option value="sd">Stable Diffusion</option>
+            </select>
+          </div>
+
+          <!-- MJ/Niji 参数 -->
+          <div
+            class="form-group source-params"
+            id="paramsMJ"
+            style="display: none"
+          >
+            <label class="form-label">MJ / Niji 参数</label>
+            <div class="params-grid">
+              <div class="param-item">
+                <label>--ar</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  id="paramAr"
+                  placeholder="16:9"
+                />
+              </div>
+              <div class="param-item">
+                <label>--niji</label>
+                <select class="form-select" id="paramVersion">
+                  <option value="">未选择</option>
+                  <option value="niji 7">Niji 7</option>
+                  <option value="niji 6">Niji 6</option>
+                </select>
+              </div>
+              <div class="param-item">
+                <label>--s (风格化)</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  id="paramStylize"
+                  placeholder="100"
+                  min="0"
+                  max="1000"
+                />
+              </div>
+              <div class="param-item">
+                <label>--q (质量)</label>
+                <select class="form-select" id="paramQuality">
+                  <option value="">默认</option>
+                  <option value="0.25">0.25</option>
+                  <option value="0.5">0.5</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                </select>
+              </div>
+              <div class="param-item">
+                <label>--c (混乱度)</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  id="paramChaos"
+                  placeholder="0"
+                  min="0"
+                  max="100"
+                />
+              </div>
+              <div class="param-item">
+                <label>--seed</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  id="paramSeed"
+                  placeholder="随机"
+                />
+              </div>
+              <div class="param-item">
+                <label>--profile (P值)</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  id="paramProfile"
+                  placeholder="ycidysw"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- SD / ComfyUI 参数 -->
+          <div
+            class="form-group source-params"
+            id="paramsSD"
+            style="display: none"
+          >
+            <label class="form-label">SD / ComfyUI 参数</label>
+            <div class="params-grid">
+              <div class="param-item">
+                <label>模型 (Model)</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  id="paramSDModel"
+                  placeholder="如 animagine-xl-4.0"
+                />
+              </div>
+              <div class="param-item">
+                <label>采样器 (Sampler)</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  id="paramSDSampler"
+                  placeholder="如 Euler a"
+                />
+              </div>
+              <div class="param-item">
+                <label>步数 (Steps)</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  id="paramSDSteps"
+                  placeholder="20"
+                  min="1"
+                  max="150"
+                />
+              </div>
+              <div class="param-item">
+                <label>CFG Scale</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  id="paramSDCfg"
+                  placeholder="7"
+                  min="0"
+                  max="30"
+                  step="0.5"
+                />
+              </div>
+              <div class="param-item">
+                <label>Seed</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  id="paramSDSeed"
+                  placeholder="随机"
+                />
+              </div>
+              <div class="param-item">
+                <label>尺寸</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  id="paramSDSize"
+                  placeholder="512x768"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- NAI 参数 -->
+          <div
+            class="form-group source-params"
+            id="paramsNAI"
+            style="display: none"
+          >
+            <label class="form-label">NovelAI 参数</label>
+            <div class="params-grid">
+              <div class="param-item">
+                <label>模型 (Model)</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  id="paramNAIModel"
+                  placeholder="如 NAI Diffusion V4.5"
+                />
+              </div>
+              <div class="param-item">
+                <label>采样器 (Sampler)</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  id="paramNAISampler"
+                  placeholder="如 Euler"
+                />
+              </div>
+              <div class="param-item">
+                <label>步数 (Steps)</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  id="paramNAISteps"
+                  placeholder="28"
+                  min="1"
+                  max="150"
+                />
+              </div>
+              <div class="param-item">
+                <label>Guidance</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  id="paramNAICfg"
+                  placeholder="5"
+                  min="0"
+                  max="30"
+                  step="0.5"
+                />
+              </div>
+              <div class="param-item">
+                <label>Seed</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  id="paramNAISeed"
+                  placeholder="随机"
+                />
+              </div>
+              <div class="param-item">
+                <label>尺寸</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  id="paramNAISize"
+                  placeholder="832x1216"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">可见性</label>
+            <select class="form-select" id="inputVisibility">
+              <option value="public">所有人可见</option>
+              <option value="users" selected>仅登录用户可见</option>
+              <option value="private">仅自己可见</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label
+              class="form-label"
+              style="display: flex; align-items: center; gap: 8px"
+            >
+              <input
+                type="checkbox"
+                id="inputPromptPublic"
+                style="width: 16px; height: 16px"
+              />
+              公开提示词（默认仅自己可见）
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">评级（TCG 稀有度）</label>
+            <select class="form-select" id="inputRating">
+              <option value="1">★ Common</option>
+              <option value="2">★★ Uncommon</option>
+              <option value="3" selected>★★★ Rare</option>
+              <option value="4">★★★★ Epic</option>
+              <option value="5">★★★★★ Legendary</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">分类</label>
+            <select class="form-select" id="inputCategory">
+              <option value="">选择分类...</option>
+              <!-- dynamic categories populated by JS -->
+            </select>
+            <div
+              id="inputCategoryChips"
+              style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px"
+            ></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">标签</label>
+            <div class="tag-chips" id="inputTagChips">
+              <!-- populated by JS from /api/tags -->
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">备注</label>
+            <input
+              type="text"
+              class="form-input"
+              id="inputNote"
+              placeholder="可选备注..."
+            />
+          </div>
+        </div>
+        <div class="upload-progress" id="uploadProgress" style="display: none">
+          <div class="upload-progress-text">
+            上传中 <span id="uploadCurrent">0</span> /
+            <span id="uploadTotal">0</span>
+          </div>
+          <div class="upload-progress-bar">
+            <div class="upload-progress-fill" id="uploadProgressFill"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" id="uploadCancel">取消</button>
+          <button class="btn btn-primary" id="uploadSave">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            保存
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Lightbox ===== -->
+    <div class="modal-overlay lightbox-overlay" id="lightboxModal">
+      <div class="lightbox">
+        <button class="lightbox-close" id="lightboxClose">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <div class="lightbox-body">
+          <div class="lightbox-image-area">
+            <img id="lightboxImage" />
+          </div>
+          <aside class="lightbox-info">
+            <div class="lightbox-info-inner">
+              <h3 class="lightbox-title">作品详情</h3>
+              <div class="info-section">
+                <div class="info-label">提示词</div>
+                <div class="info-content prompt-text" id="lbPrompt">—</div>
+              </div>
+              <div class="info-section">
+                <div class="info-label">参数</div>
+                <div class="info-params" id="lbParams"></div>
+              </div>
+              <div
+                class="info-section"
+                id="lbTagsSection"
+                style="display: none"
+              >
+                <div class="info-label">标签</div>
+                <div class="info-tags" id="lbTags"></div>
+              </div>
+              <div
+                class="info-section"
+                id="lbNoteSection"
+                style="display: none"
+              >
+                <div class="info-label">备注</div>
+                <div class="info-content" id="lbNote"></div>
+              </div>
+              <div class="info-section">
+                <div class="info-label">上传者</div>
+                <div class="info-content" id="lbUser">—</div>
+              </div>
+              <div class="info-section">
+                <div class="info-label">时间</div>
+                <div class="info-content info-time" id="lbTime">—</div>
+              </div>
+              <div class="lightbox-actions">
+                <button class="btn btn-ghost btn-sm like-btn" id="lbLike">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    />
+                  </svg>
+                  <span id="lbLikeCount">0</span>
+                </button>
+                <button class="btn btn-ghost btn-sm" id="lbCopyPrompt">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path
+                      d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                    />
+                  </svg>
+                  复制提示词
+                </button>
+                <button class="btn btn-ghost btn-sm" id="lbDownload">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  下载
+                </button>
+                <button class="btn btn-ghost btn-sm" id="lbEdit">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                    />
+                    <path
+                      d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                    />
+                  </svg>
+                  编辑
+                </button>
+                <button class="btn btn-danger btn-sm" id="lbDelete">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path
+                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    />
+                  </svg>
+                  删除
+                </button>
+              </div>
+              <!-- Comments -->
+              <div class="comments-section" id="commentsSection">
+                <div class="comments-header">
+                  评论 <span id="commentCount">0</span>
+                </div>
+                <div class="comments-list" id="commentsList"></div>
+                <div
+                  class="comment-input"
+                  id="commentInput"
+                  style="display: none"
+                >
+                  <input
+                    type="text"
+                    class="form-input"
+                    id="commentText"
+                    placeholder="写评论..."
+                    maxlength="500"
+                  />
+                  <button class="btn btn-primary btn-sm" id="commentSend">
+                    发送
+                  </button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Admin Modal ===== -->
+    <!-- ===== Admin Dashboard (Full Page) ===== -->
+    <div class="admin-dashboard" id="adminModal" style="display: none">
+      <aside class="admin-nav">
+        <div class="admin-nav-header">
+          <div class="admin-logo">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82z"
+              /></svg
+            ><span>管理后台</span>
+          </div>
+        </div>
+        <nav class="admin-nav-menu">
+          <button class="admin-nav-item active" data-panel="adminDashboard">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" /></svg
+            >仪表盘
+          </button>
+          <button class="admin-nav-item" data-panel="adminSettings">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9z"
+              /></svg
+            >站点设置
+          </button>
+          <button class="admin-nav-item" data-panel="adminUsers">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
+            >用户管理
+          </button>
+          <button class="admin-nav-item" data-panel="adminCategories">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+              /></svg
+            >分类管理
+          </button>
+          <button class="admin-nav-item" data-panel="adminTags">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+              />
+              <line x1="7" y1="7" x2="7.01" y2="7" /></svg
+            >标签管理
+          </button>
+        </nav>
+        <div class="admin-nav-footer">
+          <button class="admin-nav-item" id="adminClose">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" /></svg
+            >返回画廊
+          </button>
+        </div>
+      </aside>
+      <main class="admin-main">
+        <div class="admin-topbar">
+          <button class="admin-menu-toggle" id="adminMenuToggle">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          <h1 class="admin-page-title" id="adminPageTitle">仪表盘</h1>
+        </div>
+        <div class="admin-content">
+          <!-- Dashboard Panel -->
+          <div class="admin-panel active" id="panel-adminDashboard">
+            <div class="dashboard-cards">
+              <div class="dash-card">
+                <div
+                  class="dash-card-icon"
+                  style="background: rgba(99, 102, 241, 0.15); color: #818cf8"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                  </svg>
+                </div>
+                <div class="dash-card-info">
+                  <div class="dash-card-label">用户数</div>
+                  <div class="dash-card-value" id="dashUsers">0</div>
+                </div>
+              </div>
+              <div class="dash-card">
+                <div
+                  class="dash-card-icon"
+                  style="background: rgba(34, 211, 238, 0.15); color: #22d3ee"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                </div>
+                <div class="dash-card-info">
+                  <div class="dash-card-label">作品数</div>
+                  <div class="dash-card-value" id="dashWorks">0</div>
+                </div>
+              </div>
+              <div class="dash-card">
+                <div
+                  class="dash-card-icon"
+                  style="background: rgba(244, 63, 94, 0.15); color: #fb7185"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    />
+                  </svg>
+                </div>
+                <div class="dash-card-info">
+                  <div class="dash-card-label">总点赞</div>
+                  <div class="dash-card-value" id="dashLikes">0</div>
+                </div>
+              </div>
+              <div class="dash-card">
+                <div
+                  class="dash-card-icon"
+                  style="background: rgba(168, 85, 247, 0.15); color: #c084fc"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+                    />
+                    <line x1="7" y1="7" x2="7.01" y2="7" />
+                  </svg>
+                </div>
+                <div class="dash-card-info">
+                  <div class="dash-card-label">标签数</div>
+                  <div class="dash-card-value" id="dashTags">0</div>
+                </div>
+              </div>
+            </div>
+            <div class="dash-section">
+              <h3>系统状态</h3>
+              <div class="dash-status">
+                <span class="status-dot"></span> 服务运行正常
+              </div>
+            </div>
+          </div>
+
+          <!-- Settings Panel -->
+          <div class="admin-panel" id="panel-adminSettings">
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-name">站点名称</div>
+                <div class="setting-desc">显示在导航栏和页面标题</div>
+              </div>
+              <input
+                type="text"
+                class="form-input"
+                id="settingSiteName"
+                style="width: 180px"
+                placeholder="MJ Gallery"
+              />
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-name">开放注册</div>
+                <div class="setting-desc">允许新用户注册账号</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingAllowRegister" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-name">游客可浏览</div>
+                <div class="setting-desc">未登录的访客可以查看画廊内容</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingGuestCanView" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-name">注册需审核</div>
+                <div class="setting-desc">
+                  新注册用户需管理员审核通过后才能查看内容
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingApprovedOnly" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-name">禁止下载</div>
+                <div class="setting-desc">
+                  禁止用户右键保存和下载图片（管理员不受限制）
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingDisableDownload" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-name">允许上传</div>
+                <div class="setting-desc">
+                  允许普通用户上传作品（关闭后仅管理员可上传）
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingAllowUpload" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-name">开启点赞</div>
+                <div class="setting-desc">允许用户对作品点赞</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingEnableLikes" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-name">开启评论</div>
+                <div class="setting-desc">允许用户发表评论</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingEnableComments" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-name">评论审核</div>
+                <div class="setting-desc">
+                  评论需管理员审核后才可见（管理员评论自动通过）
+                </div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingCommentModeration" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="setting-name">展示主题</div>
+                <div class="setting-desc">切换画廊展示风格</div>
+              </div>
+              <select
+                class="form-select"
+                id="settingTheme"
+                style="width: 140px"
+              >
+                <option value="default">默认</option>
+                <option value="gallery">画廊</option>
+                <option value="ios">iOS 风格</option>
+                <option value="ey">EY 立绘</option>
+                <option value="tcg">TCG 卡牌</option>
+              </select>
+            </div>
+            <button
+              class="btn btn-primary"
+              id="saveAdminSettings"
+              style="margin-top: 16px"
+            >
+              保存设置
+            </button>
+          </div>
+
+          <!-- Users Panel -->
+          <div class="admin-panel" id="panel-adminUsers">
+            <div class="users-list" id="usersList"></div>
+          </div>
+
+          <!-- Categories Panel -->
+          <div class="admin-panel" id="panel-adminCategories">
+            <div class="category-create">
+              <input
+                type="text"
+                class="form-input"
+                id="newCategoryName"
+                placeholder="输入分类名称..."
+              />
+              <button class="btn btn-primary btn-sm" id="btnCreateCategory">
+                创建分类
+              </button>
+            </div>
+            <div class="categories-list" id="categoriesList"></div>
+          </div>
+
+          <!-- Tags Panel -->
+          <div class="admin-panel" id="panel-adminTags">
+            <div class="category-create">
+              <input
+                type="text"
+                class="form-input"
+                id="newTagName"
+                placeholder="输入标签名称..."
+              />
+              <button class="btn btn-primary btn-sm" id="btnCreateTag">
+                创建标签
+              </button>
+            </div>
+            <div class="categories-list" id="tagsList"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- User Sidebar -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div class="user-sidebar" id="userSidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-user-info">
+          <div class="sidebar-avatar" id="sidebarInitial">?</div>
+          <div class="sidebar-user-text">
+            <div class="sidebar-username" id="sidebarUsername">用户</div>
+            <div class="sidebar-role" id="sidebarRole">user</div>
+          </div>
+        </div>
+        <button class="btn-close" id="sidebarClose">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="sidebar-body">
+        <button class="sidebar-item" id="sidebarMyProfile">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          我的主页
+        </button>
+        <button class="sidebar-item" id="sidebarChangeAvatar">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+            />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+          更换头像
+        </button>
+        <button class="sidebar-item" id="sidebarAdmin" style="display: none">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+            />
+          </svg>
+          管理后台
+        </button>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-title">个人设置</div>
+        <div class="sidebar-setting">
+          <label>主页可见性</label>
+          <select
+            class="form-select form-select-sm"
+            id="settingProfileVisibility"
+          >
+            <option value="public">所有人可见</option>
+            <option value="users">仅登录用户</option>
+            <option value="off">关闭主页</option>
+          </select>
+        </div>
+        <button
+          class="btn btn-primary btn-sm sidebar-save"
+          id="btnSaveUserSettings"
+        >
+          保存设置
+        </button>
+        <div class="sidebar-divider"></div>
+        <button class="sidebar-item sidebar-item-danger" id="sidebarLogout">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          退出登录
+        </button>
+      </div>
+    </div>
+
+    <!-- Batch Action Bar -->
+    <div class="batch-bar" id="batchBar" style="display: none">
+      <span class="batch-count" id="batchCount">已选 0 项</span>
+      <button class="btn btn-ghost btn-sm" id="btnBatchSelectAll">全选</button>
+      <select class="form-select form-select-sm" id="batchCategory">
+        <option value="">设置分类...</option>
+      </select>
+      <span
+        id="batchCategoryChips"
+        style="display: flex; gap: 4px; flex-wrap: wrap"
+      ></span>
+      <select class="form-select form-select-sm" id="batchAddTag">
+        <option value="">添加标签...</option>
+      </select>
+      <span
+        id="batchTagChips"
+        style="display: flex; gap: 4px; flex-wrap: wrap"
+      ></span>
+      <select class="form-select form-select-sm" id="batchVisibility">
+        <option value="">设置可见性...</option>
+        <option value="public">公开</option>
+        <option value="users">仅登录</option>
+        <option value="private">仅自己</option>
+      </select>
+      <button class="btn btn-primary btn-sm" id="btnBatchApply">应用</button>
+      <button
+        class="btn btn-ghost btn-sm"
+        style="color: #ef4444"
+        id="btnBatchDelete"
+      >
+        删除
+      </button>
+      <button class="btn btn-ghost btn-sm" id="btnBatchCancel">取消</button>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js?v=53"></script>
+  </body>
+</html>
