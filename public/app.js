@@ -883,6 +883,52 @@
     $("#paramsNAI").style.display = source === "nai" ? "" : "none";
   }
 
+  // Remember last-used source + generation params so uploads don't need refilling.
+  const LAST_PARAMS_KEY = "mj_last_upload_params";
+  const REMEMBER_FIELDS = [
+    "paramAr", "paramVersion", "paramStylize", "paramQuality", "paramChaos",
+    "paramProfile", "paramSDModel", "paramSDSampler", "paramSDSteps",
+    "paramSDCfg", "paramSDSize", "paramNAIModel", "paramNAISampler",
+    "paramNAISteps", "paramNAICfg", "paramNAISize",
+  ];
+  function saveLastParams() {
+    try {
+      const data = {
+        source: $("#inputSource").value,
+        visibility: $("#inputVisibility").value,
+        rating: $("#inputRating").value,
+        promptPublic: $("#inputPromptPublic").checked,
+        fields: {},
+      };
+      for (const id of REMEMBER_FIELDS) {
+        const el = $("#" + id);
+        if (el) data.fields[id] = el.value;
+      }
+      localStorage.setItem(LAST_PARAMS_KEY, JSON.stringify(data));
+    } catch {}
+  }
+  function restoreLastParams() {
+    try {
+      const raw = localStorage.getItem(LAST_PARAMS_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data.source) {
+        $("#inputSource").value = data.source;
+        toggleSourceParams(data.source);
+      }
+      if (data.visibility) $("#inputVisibility").value = data.visibility;
+      if (data.rating) $("#inputRating").value = data.rating;
+      if (typeof data.promptPublic === "boolean")
+        $("#inputPromptPublic").checked = data.promptPublic;
+      if (data.fields) {
+        for (const [id, val] of Object.entries(data.fields)) {
+          const el = $("#" + id);
+          if (el && val != null) el.value = val;
+        }
+      }
+    } catch {}
+  }
+
   async function openUploadModal() {
     if (!currentUser) {
       toast(TEXT.loginFirst, "error");
@@ -890,6 +936,7 @@
     }
 
     resetUploadForm();
+    restoreLastParams();
     await loadTags();
     await loadCategories();
     $("#uploadModal").classList.add("active");
@@ -1080,6 +1127,7 @@
         toast(formatText(TEXT.saveOk, { count: successCount }), "success");
       }
 
+      saveLastParams();
       closeUploadModal();
       loadGallery(true);
     } catch (err) {

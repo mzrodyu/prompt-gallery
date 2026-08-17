@@ -12,7 +12,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
     />
-    <link rel="stylesheet" href="style.css?v=53" />
+    <link rel="stylesheet" href="style.css?v=54" />
   </head>
   <body>
     <!-- ===== Auth Page ===== -->
@@ -757,7 +757,8 @@
                   type="text"
                   class="form-input"
                   id="paramNAIModel"
-                  placeholder="如 NAI Diffusion V4.5"
+                  list="naiModelList"
+                  placeholder="点击选择或输入"
                 />
               </div>
               <div class="param-item">
@@ -766,7 +767,8 @@
                   type="text"
                   class="form-input"
                   id="paramNAISampler"
-                  placeholder="如 Euler"
+                  list="samplerList"
+                  placeholder="点击选择或输入"
                 />
               </div>
               <div class="param-item">
@@ -811,6 +813,23 @@
                 />
               </div>
             </div>
+            <datalist id="naiModelList">
+              <option value="NAI Diffusion V4.5 (Full)"></option>
+              <option value="NAI Diffusion V4.5 (Curated)"></option>
+              <option value="NAI Diffusion V4 (Full)"></option>
+              <option value="NAI Diffusion V4 (Curated)"></option>
+              <option value="NAI Diffusion Anime V3"></option>
+              <option value="NAI Diffusion Furry V3"></option>
+            </datalist>
+            <datalist id="samplerList">
+              <option value="Euler"></option>
+              <option value="Euler Ancestral"></option>
+              <option value="DPM++ 2M"></option>
+              <option value="DPM++ 2M SDE"></option>
+              <option value="DPM++ SDE"></option>
+              <option value="DPM++ 2S Ancestral"></option>
+              <option value="DDIM"></option>
+            </datalist>
           </div>
 
           <div class="form-group">
@@ -1598,6 +1617,6 @@
     <!-- Toast -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <script src="app.js?v=53"></script>
+    <script src="app.js?v=54"></script>
   </body>
 </html>
