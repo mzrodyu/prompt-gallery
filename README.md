@@ -35,21 +35,8 @@ npm install
 npm start          # 默认 http://localhost:3000
 ```
 
-第一个注册的用户会自动成为管理员。就这么简单。
 
 <!-- APPEND_MARKER -->
-
-## ⚡ 性能
-
-图片不再内联进 JSON、也不再"改一次全量重写"。元数据进 SQLite（带索引），图片作为独立文件存盘：
-
-| 操作 | 旧（单 JSON 全量重写） | 现在（SQLite） |
-|---|---|---|
-| 一次点赞 | ~426 ms，阻塞事件循环 | **~0.1 ms** |
-| 列表查询（筛选+排序+分页） | 全量扫描+复制 | **~3 ms** |
-| 5000 张图的数据文件 | 244 MB 单文件 | **2.2 MB** 数据库 + 图片各自成文件 |
-
-> 单次点赞快约 **4000×**，且不再卡住其它请求。`npm run bench` 可自测。
 
 ## 🛠️ 部署
 
@@ -82,23 +69,6 @@ JWT_SECRET=改成你的随机串 PORT=3000 pm2 start server.js --name gallery
 | `DATA_DIR` | `./data` | 数据目录（`gallery.db` + `images/`），**务必持久化** |
 | `JWT_SECRET` | 自动生成 | 登录令牌密钥，建议显式设置一串随机值 |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | 无 | 设置后自动创建 / 提升该用户为管理员 |
-
-首次启动若检测到旧版 `data/*.json`，会自动迁移进 SQLite 并把旧文件改名为 `*.bak`。
-
-## 🧱 技术栈
-
-- **后端**：Node.js + Express，存储用内置 `node:sqlite`（WAL、预编译语句、事务）
-- **前端**：原生 HTML / CSS / JS，无构建、无框架；卡片懒加载 + 无限滚动
-- **测试**：Playwright 端到端 + `scripts/smoke.js` 接口冒烟
-
-## 🧪 开发
-
-```bash
-npm run dev        # 启动
-npm run smoke      # 接口契约冒烟测试
-npm run bench      # 性能基准
-npm run test:e2e   # Playwright 端到端
-```
 
 ## 🤝 贡献 & 许可
 
